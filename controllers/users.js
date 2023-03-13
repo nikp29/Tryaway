@@ -36,8 +36,8 @@ const createUser = async (req, res) => {
             card_token: "",
         };
 
-        usersRef.doc(authId).set(data);
-        stripeRef.doc(customer.id).set({ uid: authId });
+        await usersRef.doc(authId).set(data);
+        await stripeRef.doc(customer.id).set({ uid: authId });
 
         res.send({
             subscriptionId: subscription.id,
