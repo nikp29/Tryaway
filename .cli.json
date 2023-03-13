@@ -1,0 +1,11 @@
+{
+  "name": "TrialDaddy",
+  "configureDotEnv": true,
+  "integrations": [
+    {
+      "name": "main",
+      "clients": ["html"],
+      "servers": ["node"]
+    }
+  ]
+}
