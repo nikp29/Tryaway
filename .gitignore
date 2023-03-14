@@ -3,6 +3,8 @@
 .vscode
 firebasekey.js
 
+dist
+
 # Dependencies
 node_modules
 package-lock.json

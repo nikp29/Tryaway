@@ -1,30 +1,32 @@
 import { firebase } from "../config/firebase.js";
 
-const getUser = async (uuid) => {
+const getUser = async (uuid: string) => {
     const usersRef = firebase.firestore().collection("users");
     const user = await usersRef.doc(uuid).get();
     return user.data();
 };
 
-const updateUser = async (uuid, data) => {
+const updateUser = async (uuid: string, data: any) => {
     const usersRef = firebase.firestore().collection("users");
     await usersRef.doc(uuid).update(data);
 };
 
-const getStripeCustomer = async (stripe_cust_id) => {
+const getStripeCustomer = async (
+    stripeCustId: string
+) => {
     const stripeRef = firebase.firestore().collection("stripe");
-    const customer = await stripeRef.doc(stripe_cust_id).get();
+    const customer = await stripeRef.doc(stripeCustId).get();
     return customer.data();
 };
 
-const setUser = async (uuid, data) => {
+const setUser = async (uuid: string, data: any) => {
     const usersRef = firebase.firestore().collection("users");
     await usersRef.doc(uuid).set(data);
 };
 
-const setStripeCustomer = async (stripe_cust_id, uuid) => {
+const setStripeCustomer = async (stripeCustId: string, uuid: string) => {
     const stripeRef = firebase.firestore().collection("stripe");
-    await stripeRef.doc(stripe_cust_id).set({ uuid });
+    await stripeRef.doc(stripeCustId).set({ uuid });
 };
 
-export { getUser, updateUser, getStripeCustomer };
+export { getUser, getStripeCustomer, setStripeCustomer, setUser, updateUser };
