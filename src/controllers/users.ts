@@ -115,4 +115,9 @@ const updateSubscription = async (req: IAuthorizedRouteReq, res: Response) => {
   }
 };
 
+const activateAccount = async (req: IAuthorizedRouteReq, res: Response) => {
+  const { authId } = req;
+  const user = await getUser(authId);
+};
+
 export { createUser, deactivateUser, updateSubscription };
