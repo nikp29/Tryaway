@@ -3,10 +3,12 @@ const app = express();
 import { resolve } from "path";
 import cors from "cors";
 import helmet from "helmet";
-// Replace if using a different env file or config
 import dotenv from "dotenv";
+import { stripe } from "./config/stripe.js";
+import { handlePaymentSuccess } from "./helpers/payments.js";
+import routes from "./routes/index.js";
+
 dotenv.config();
-import { stripe } from "./stripe/config.js";
 
 app.use(helmet());
 app.disable("x-powered-by");
@@ -27,6 +29,8 @@ app.use(
         },
     })
 );
+
+app.use("/v1", routes);
 
 app.get("/config", (req, res) => {
     res.send({
@@ -55,7 +59,7 @@ app.post("/webhook", async (req, res) => {
             console.log(`⚠️  Webhook signature verification failed.`);
             return res.sendStatus(400);
         }
-        data = event.data;
+        data = event.data.object;
         eventType = event.type;
     } else {
         // Webhook signing is recommended, but if the secret is not configured in `config.js`,
@@ -71,6 +75,8 @@ app.post("/webhook", async (req, res) => {
         console.log("💰 Payment captured!");
     } else if (eventType === "payment_intent.payment_failed") {
         console.log("❌ Payment failed.");
+    } else if (eventType == "invoice.payment_succeeded") {
+        handlePaymentSuccess(data);
     }
     res.sendStatus(200);
 });

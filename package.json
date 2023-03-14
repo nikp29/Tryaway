@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "firebase-admin": "^11.5.0",
     "helmet": "^6.0.1",
+    "mailslurp-client": "^15.17.0",
     "moment": "^2.29.4",
     "nodemon": "^2.0.21",
     "stripe": "^10.0.0"

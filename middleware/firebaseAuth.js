@@ -1,4 +1,4 @@
-import { firebase } from "../firebase/config.js";
+import { firebase } from "../config/firebase.js";
 
 const getAuthToken = (req, res, next) => {
     if (
