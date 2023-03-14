@@ -1,7 +1,7 @@
 {
-  "name": "stripe-sample-demo",
+  "name": "trial-daddy",
   "version": "1.0.0",
-  "description": "A Stripe demo",
+  "description": "A free trial service",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
