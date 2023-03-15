@@ -1,6 +1,8 @@
 import { MailSlurp } from 'mailslurp-client';
 import { CreateInboxForwarderOptionsFieldEnum } from 'mailslurp-client';
 import { updateUser } from './firebase.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const mailslurp = new MailSlurp({ apiKey: process.env.MAILSLURP_KEY });
 
@@ -21,3 +23,5 @@ const createInbox = async (uuid: string, userEmail: string) => {
     proxy_email: inbox.emailAddress
   });
 };
+
+export { createInbox };

@@ -1,9 +1,11 @@
 import { firebase } from '../config/firebase.js';
 import moment from 'moment';
 import { stripe } from '../config/stripe.js';
-import { getUser } from '../helpers/firebase.js';
+import { getUser, updateUser } from '../helpers/firebase.js';
 import { Response } from 'express';
 import { IAuthorizedRouteReq } from '../definitionfile';
+import { createInbox } from '../helpers/mailslurp.js';
+import psl from 'psl';
 import Stripe from 'stripe';
 
 const createUser = async (req: IAuthorizedRouteReq, res: Response) => {
@@ -54,7 +56,7 @@ const createUser = async (req: IAuthorizedRouteReq, res: Response) => {
     });
   } catch (error) {
     res.status(400).json({
-      data: error.message
+      error
     });
   }
 };
@@ -78,7 +80,7 @@ const deactivateUser = async (req: IAuthorizedRouteReq, res: Response) => {
     res.send({ deletedSubscription });
   } catch (error) {
     res.status(400).json({
-      data: error.message
+      error
     });
   }
 };
@@ -111,13 +113,48 @@ const updateSubscription = async (req: IAuthorizedRouteReq, res: Response) => {
       clientSecret: paymentIntent.client_secret
     });
   } catch (error) {
-    return res.status(400).send({ error: { message: error.message } });
+    res.status(400).send({ error });
   }
+};
+
+const domainFromUrl = (url: string) => {
+  let hostname;
+  // find & remove protocol (http, ftp, etc.) and get hostname
+
+  if (url.indexOf('//') > -1) {
+    hostname = url.split('/')[2];
+  } else {
+    hostname = url.split('/')[0];
+  }
+
+  // find & remove port number
+  hostname = hostname.split(':')[0];
+  // find & remove "?"
+  hostname = hostname.split('?')[0];
+
+  return hostname;
 };
 
 const activateAccount = async (req: IAuthorizedRouteReq, res: Response) => {
   const { authId } = req;
-  const user = await getUser(authId);
+
+  try {
+    const user = await getUser(authId);
+
+    if (user.expiration <= moment().unix()) {
+      res.status(400).send({ error: 'expired' });
+    }
+    const domain = psl.get(domainFromUrl(req.body.url));
+    if (user.mailslurp_id === '' || user.card_usage.includes(domain)) {
+      await createInbox(authId, user.email);
+    } else {
+      updateUser(authId, { card_usage: user.card_usage.push(domain) });
+    }
+
+    res.send({ email: user.proxy_email, card_token: user.card_token });
+  } catch (error) {
+    res.status(400).send({ error });
+  }
 };
 
-export { createUser, deactivateUser, updateSubscription };
+export { activateAccount, createUser, deactivateUser, updateSubscription };
