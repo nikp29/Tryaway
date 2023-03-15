@@ -157,4 +157,4 @@ const activateAccount = async (req: IAuthorizedRouteReq, res: Response) => {
   }
 };
 
-export { createUser, deactivateUser, updateSubscription, activateAccount };
+export { activateAccount, createUser, deactivateUser, updateSubscription };

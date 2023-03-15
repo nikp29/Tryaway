@@ -1,5 +1,5 @@
 {
-  "name": "trial-daddy",
+  "name": "tryaway",
   "version": "1.0.0",
   "description": "A free trial service",
   "type": "module",
@@ -10,9 +10,9 @@
     "prestart": "npm run build",
     "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev:server": "nodemon"
+    "dev": "nodemon"
   },
-  "author": "stripe-demos",
+  "author": "Nikhil Patel",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
