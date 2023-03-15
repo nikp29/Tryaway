@@ -21,3 +21,5 @@ const createInbox = async (uuid: string, userEmail: string) => {
     proxy_email: inbox.emailAddress
   });
 };
+
+export { createInbox };
