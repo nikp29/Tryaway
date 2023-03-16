@@ -18,7 +18,6 @@ const createUser = async (req: IAuthorizedRouteReq, res: Response) => {
     const customer = await stripe.customers.create({
       email
     });
-
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
       items: [
@@ -29,7 +28,6 @@ const createUser = async (req: IAuthorizedRouteReq, res: Response) => {
       payment_behavior: 'default_incomplete',
       expand: ['latest_invoice.payment_intent']
     });
-
     const data = {
       stripeCustId: customer.id,
       stripeSubscriptonId: subscription.id,
@@ -43,14 +41,15 @@ const createUser = async (req: IAuthorizedRouteReq, res: Response) => {
       proxy_email: '',
       mailslurp_id: ''
     };
-
     await usersRef.doc(authId).set(data);
     await stripeRef.doc(customer.id).set({ uuid: authId });
-
     const invoice = subscription.latest_invoice as Stripe.Invoice;
     const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
-
-    res.send({
+    console.log({
+      subscriptionId: subscription.id,
+      clientSecret: paymentIntent.client_secret
+    });
+    res.status(200).json({
       subscriptionId: subscription.id,
       clientSecret: paymentIntent.client_secret
     });
@@ -58,6 +57,7 @@ const createUser = async (req: IAuthorizedRouteReq, res: Response) => {
     res.status(400).json({
       error
     });
+    console.log(error);
   }
 };
 
@@ -157,4 +157,26 @@ const activateAccount = async (req: IAuthorizedRouteReq, res: Response) => {
   }
 };
 
-export { activateAccount, createUser, deactivateUser, updateSubscription };
+const userHasPaid = async (req: IAuthorizedRouteReq, res: Response) => {
+  const { authId } = req;
+
+  try {
+    const user = await getUser(authId);
+
+    if (user.expiration <= moment().unix()) {
+      res.send({ hasPaid: false });
+    } else {
+      res.send({ hasPaid: true });
+    }
+  } catch (error) {
+    res.status(400).send({ error });
+  }
+};
+
+export {
+  activateAccount,
+  createUser,
+  deactivateUser,
+  updateSubscription,
+  userHasPaid
+};
