@@ -1,7 +1,6 @@
 import Stripe from 'stripe';
-import { stripeSecretKey } from '../stripekey.js';
 
-const stripe = new Stripe(stripeSecretKey, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: null,
   appInfo: {
     // For sample support and debugging, not required for production:

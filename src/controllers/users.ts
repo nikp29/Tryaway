@@ -32,8 +32,7 @@ const createUser = async (req: IAuthorizedRouteReq, res: Response) => {
       stripeCustId: customer.id,
       stripeSubscriptonId: subscription.id,
       email,
-      name: '',
-      address: '',
+      address: {},
       expiration: moment().unix(),
       stripeIssuingCustId: '',
       card_usage: [''],
@@ -45,10 +44,6 @@ const createUser = async (req: IAuthorizedRouteReq, res: Response) => {
     await stripeRef.doc(customer.id).set({ uuid: authId });
     const invoice = subscription.latest_invoice as Stripe.Invoice;
     const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
-    console.log({
-      subscriptionId: subscription.id,
-      clientSecret: paymentIntent.client_secret
-    });
     res.status(200).json({
       subscriptionId: subscription.id,
       clientSecret: paymentIntent.client_secret
@@ -76,8 +71,43 @@ const deactivateUser = async (req: IAuthorizedRouteReq, res: Response) => {
 
     await stripeRef.doc(stripeCustId).delete();
     await usersRef.doc(authId).delete();
+    firebase.auth().deleteUser(authId);
 
     res.send({ deletedSubscription });
+  } catch (error) {
+    res.status(400).json({
+      error
+    });
+  }
+};
+
+const setAddress = async (req: IAuthorizedRouteReq, res: Response) => {
+  console.log('setAddress');
+  // sets address for user in firestore
+  const { authId } = req;
+  const { address } = req.body;
+  console.log(req);
+
+  try {
+    await updateUser(authId, { address });
+    res.send({ address });
+  } catch (error) {
+    res.status(400).json({
+      error
+    });
+  }
+};
+
+const paymentMethodID = async (req: IAuthorizedRouteReq, res: Response) => {
+  // sets card for user in stripe
+  const { authId } = req;
+
+  try {
+    const user = await getUser(authId);
+    const intent = await stripe.setupIntents.create({
+      customer: user.StripeCustId
+    });
+    res.send({ clientSecret: intent.client_secret });
   } catch (error) {
     res.status(400).json({
       error
@@ -176,7 +206,9 @@ const userHasPaid = async (req: IAuthorizedRouteReq, res: Response) => {
 export {
   activateAccount,
   createUser,
+  paymentMethodID,
   deactivateUser,
+  setAddress,
   updateSubscription,
   userHasPaid
 };

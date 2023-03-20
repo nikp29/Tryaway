@@ -29,9 +29,7 @@ app.use(
     }
   })
 );
-
 app.use('/v1', routes);
-
 app.get('/config', (req, res) => {
   res.send({
     publishableKey: process.env.STRIPE_PUBLISHABLE_KEY
