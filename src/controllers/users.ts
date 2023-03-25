@@ -86,12 +86,12 @@ const setAddress = async (req: IAuthorizedRouteReq, res: Response) => {
   // sets address for user in firestore
   const { authId } = req;
   const { address } = req.body;
-  console.log(req);
 
   try {
     await updateUser(authId, { address });
     res.send({ address });
   } catch (error) {
+    console.log(error);
     res.status(400).json({
       error
     });
@@ -123,16 +123,8 @@ const updateSubscription = async (req: IAuthorizedRouteReq, res: Response) => {
     const subscription = await stripe.subscriptions.retrieve(
       data.stripeSubscriptonId
     );
-    const updatedSubscription = await stripe.subscriptions.update(
-      data.stripeSubscriptonId,
-      {
-        items: [
-          {
-            id: subscription.items.data[0].id,
-            price: 'price_1MlImlAera2crwedQBRYFyXc'
-          }
-        ]
-      }
+    const updatedSubscription = await stripe.subscriptions.retrieve(
+      data.stripeSubscriptonId
     );
 
     const invoice = subscription.latest_invoice as Stripe.Invoice;
@@ -143,6 +135,7 @@ const updateSubscription = async (req: IAuthorizedRouteReq, res: Response) => {
       clientSecret: paymentIntent.client_secret
     });
   } catch (error) {
+    console.log(error);
     res.status(400).send({ error });
   }
 };
@@ -168,21 +161,24 @@ const domainFromUrl = (url: string) => {
 const activateAccount = async (req: IAuthorizedRouteReq, res: Response) => {
   const { authId } = req;
 
+  console.log('activateAccount');
   try {
     const user = await getUser(authId);
-
     if (user.expiration <= moment().unix()) {
       res.status(400).send({ error: 'expired' });
+      return;
     }
+
     const domain = psl.get(domainFromUrl(req.body.url));
-    if (user.mailslurp_id === '' || user.card_usage.includes(domain)) {
+    if (user.mailslurp_id === '') {
       await createInbox(authId, user.email);
-    } else {
-      updateUser(authId, { card_usage: user.card_usage.push(domain) });
     }
+    user.card_usage.push(domain);
+    updateUser(authId, { card_usage: user.card_usage });
 
     res.send({ email: user.proxy_email, card_token: user.card_token });
   } catch (error) {
+    console.log(error);
     res.status(400).send({ error });
   }
 };

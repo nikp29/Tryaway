@@ -25,7 +25,7 @@ const handlePaymentSuccess = async (dataObject: any) => {
     // Update the user's subscription status in Firestore
     const stripeCustObj = await getStripeCustomer(dataObject.customer);
     const uuid = stripeCustObj.uuid;
-    await updateUser(uuid, { expiration: moment().add(1, 'month').unix() });
+    await updateUser(uuid, { expiration: moment().add(1, 'M').unix() });
   } catch (err) {
     console.log(err);
     console.log(
