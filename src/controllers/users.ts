@@ -82,7 +82,6 @@ const deactivateUser = async (req: IAuthorizedRouteReq, res: Response) => {
 };
 
 const setAddress = async (req: IAuthorizedRouteReq, res: Response) => {
-  console.log('setAddress');
   // sets address for user in firestore
   const { authId } = req;
   const { address } = req.body;
@@ -161,7 +160,6 @@ const domainFromUrl = (url: string) => {
 const activateAccount = async (req: IAuthorizedRouteReq, res: Response) => {
   const { authId } = req;
 
-  console.log('activateAccount');
   try {
     const user = await getUser(authId);
     if (user.expiration <= moment().unix()) {
