@@ -1,6 +1,6 @@
-# Name of sample
+# Tryaway
 
-An [Express server](http://expressjs.com) implementation
+A backend for a service that allows you to make unlimited free trial accounts for subscriptions, even if they ask you for a card.
 
 ## Requirements
 
